@@ -1,0 +1,20 @@
+[Unit]
+Description=PiAutoRotate - automatic display rotation using MPU6050
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/piautorotate
+EnvironmentFile=-/etc/default/piautorotate
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStart=/usr/bin/env python3 /opt/piautorotate/autorotate.py
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
