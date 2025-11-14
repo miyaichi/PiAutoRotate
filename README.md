@@ -22,6 +22,23 @@ It was written for Labwc/Sway-like compositors, but any compositor that ships
 - A Wayland compositor that provides `wlr-randr` (Labwc, Sway, Wayfire, etc.).
 - Display output name that `wlr-randr` recognises (see `wlr-randr --list`).
 
+## Preflight sensor check
+
+Before installing PiAutoRotate as a service, confirm that your MPU6050 is wired
+correctly and responds over I2C:
+
+```bash
+cd /path/to/piautorotate
+python3 check_mpu6050.py \          # add --bus N if you use a non-default bus
+  --gyro-samples 300 \              # optional: increase samples for better averages
+  --gyro-log gyro_samples.csv       # optional: dump raw gyro data for later analysis
+```
+
+The script prints the `WHO_AM_I` register (should read `0x68`) and five sample
+acceleration readings. It then records stationary gyro data and reports an
+average bias in deg/s—store these values if you plan to compensate gyro drift.
+Fix any wiring/I2C issues before proceeding.
+
 ## Hardware wiring
 
 | Raspberry Pi | MPU6050 |
@@ -32,19 +49,6 @@ It was written for Labwc/Sway-like compositors, but any compositor that ships
 | GPIO3 (SCL1) | SCL     |
 
 Keep your wires short and twisted where possible to reduce noise.
-
-## Preflight sensor check
-
-Before installing PiAutoRotate as a service, confirm that your MPU6050 is wired
-correctly and responds over I2C:
-
-```bash
-cd /path/to/piautorotate
-python3 check_mpu6050.py            # add --bus N if you use a non-default bus
-```
-
-The script prints the `WHO_AM_I` register (should read `0x68`) and five sample
-acceleration readings. Fix any wiring/I2C issues before proceeding.
 
 ## Install & run manually
 
@@ -104,3 +108,9 @@ sets defaults that work for the `pi` user on Raspberry Pi OS.
   address (`0x68`) matches the wiring (AD0 pin low).
 - **Display does not rotate** – run `wlr-randr --list` to verify the output
   name, and confirm the compositor allows transforms on that output.
+
+## TODO
+
+- Implement a complementary filter that fuses gyro integration (with measured
+  bias compensation) and accelerometer readings to add tunable smoothing and
+  latency control to the rotation heuristic.
