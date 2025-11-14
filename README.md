@@ -33,6 +33,19 @@ It was written for Labwc/Sway-like compositors, but any compositor that ships
 
 Keep your wires short and twisted where possible to reduce noise.
 
+## Preflight sensor check
+
+Before installing PiAutoRotate as a service, confirm that your MPU6050 is wired
+correctly and responds over I2C:
+
+```bash
+cd /path/to/piautorotate
+python3 check_mpu6050.py            # add --bus N if you use a non-default bus
+```
+
+The script prints the `WHO_AM_I` register (should read `0x68`) and five sample
+acceleration readings. Fix any wiring/I2C issues before proceeding.
+
 ## Install & run manually
 
 ```bash
